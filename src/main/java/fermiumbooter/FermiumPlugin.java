@@ -1,5 +1,6 @@
 package fermiumbooter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
@@ -44,16 +45,22 @@ public class FermiumPlugin implements IFMLLoadingPlugin {
 	 */
 	@Override
 	public void injectData(Map<String, Object> data) {
-		for(Map.Entry<String, Supplier<Boolean>> entry : FermiumRegistryAPI.getEarlyMixins().entrySet()) {
+		for(Map.Entry<String, List<Supplier<Boolean>>> entry : FermiumRegistryAPI.getEarlyMixins().entrySet()) {
 			//Check for removals
 			if(FermiumRegistryAPI.getRejectMixins().contains(entry.getKey())) {
 				LOGGER.warn("FermiumBooter received removal of \"" + entry.getKey() + "\" for early mixin application, rejecting.");
 				continue;
 			}
 			//Check for enabled
-			Boolean enabled = entry.getValue().get();
+			Boolean enabled = null;
+			for(Supplier<Boolean> supplier : entry.getValue()) {
+				if(Boolean.TRUE.equals(enabled)) continue;//Short circuit OR
+				Boolean supplied = supplier.get();
+				if(supplied == null) LOGGER.warn("FermiumBooter received null value for individual supplier from \"" + entry.getKey() + "\" for early mixin application.");
+				else enabled = supplied;
+			}
 			if(enabled == null) {
-				LOGGER.warn("FermiumBooter received null value for supplier from \"" + entry.getKey() + "\" for early mixin application, ignoring.");
+				LOGGER.warn("FermiumBooter received null value for suppliers from \"" + entry.getKey() + "\" for early mixin application, ignoring.");
 				continue;
 			}
 			//Add configuration

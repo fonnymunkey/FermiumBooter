@@ -51,14 +51,20 @@ public class FermiumMixinLoader {
 
         //Start FermiumBooter section
 
-        for(Map.Entry<String, Supplier<Boolean>> entry : FermiumRegistryAPI.getLateMixins().entrySet()) {
+        for(Map.Entry<String, List<Supplier<Boolean>>> entry : FermiumRegistryAPI.getLateMixins().entrySet()) {
             //Check for removals
             if(FermiumRegistryAPI.getRejectMixins().contains(entry.getKey())) {
                 FermiumPlugin.LOGGER.warn("FermiumBooter received removal of \"" + entry.getKey() + "\" for late mixin application, rejecting.");
                 continue;
             }
             //Check for enabled
-            Boolean enabled = entry.getValue().get();
+            Boolean enabled = null;
+            for(Supplier<Boolean> supplier : entry.getValue()) {
+                if(Boolean.TRUE.equals(enabled)) continue;//Short circuit OR
+                Boolean supplied = supplier.get();
+                if(supplied == null) FermiumPlugin.LOGGER.warn("FermiumBooter received null value for individual supplier from \"" + entry.getKey() + "\" for late mixin application.");
+                else enabled = supplied;
+            }
             if(enabled == null) {
                 FermiumPlugin.LOGGER.warn("FermiumBooter received null value for supplier from \"" + entry.getKey() + "\" for late mixin application, ignoring.");
                 continue;

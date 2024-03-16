@@ -17,8 +17,8 @@ public abstract class FermiumRegistryAPI {
 
     private static final Logger LOGGER = LogManager.getLogger("FermiumRegistryAPI");
 
-    private static HashMap<String, Supplier<Boolean>> earlyMixins = new HashMap<>();
-    private static HashMap<String, Supplier<Boolean>> lateMixins = new HashMap<>();
+    private static HashMap<String, List<Supplier<Boolean>>> earlyMixins = new HashMap<>();
+    private static HashMap<String, List<Supplier<Boolean>>> lateMixins = new HashMap<>();
     private static List<String> rejectMixins = new ArrayList<>();
 
     /**
@@ -54,6 +54,7 @@ public abstract class FermiumRegistryAPI {
 
     /**
      * Add a mixin config resource to be applied, with a supplier to toggle application to be evaluated after all like-timed configs are registered
+     * Note: If multiple suppliers are given for a single configuration, it is evaluated as OR
      * @param late - whether to apply the mixin late or early
      * @param configuration - mixin config resource name
      * @param supplier - supplier to determine whether to apply the mixin or not
@@ -70,11 +71,13 @@ public abstract class FermiumRegistryAPI {
         //Process rejects prior to application
         if(late) {
             LOGGER.info("FermiumRegistryAPI supplied \"" + configuration + "\" for late mixin enqueue, adding.");
-            lateMixins.put(configuration, supplier);
+            lateMixins.computeIfAbsent(configuration, k -> new ArrayList<>());
+            lateMixins.get(configuration).add(supplier);
         }
         else {
             LOGGER.info("FermiumRegistryAPI supplied \"" + configuration + "\" for early mixin enqueue, adding.");
-            earlyMixins.put(configuration, supplier);
+            earlyMixins.computeIfAbsent(configuration, k -> new ArrayList<>());
+            earlyMixins.get(configuration).add(supplier);
         }
     }
 
@@ -95,14 +98,14 @@ public abstract class FermiumRegistryAPI {
     /**
      * Internal Use; Do Not Use
      */
-    public static HashMap<String, Supplier<Boolean>> getEarlyMixins() {
+    public static HashMap<String, List<Supplier<Boolean>>> getEarlyMixins() {
         return earlyMixins;
     }
 
     /**
      * Internal Use; Do Not Use
      */
-    public static HashMap<String, Supplier<Boolean>> getLateMixins() {
+    public static HashMap<String, List<Supplier<Boolean>>> getLateMixins() {
         return lateMixins;
     }
 

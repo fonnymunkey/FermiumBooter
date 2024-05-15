@@ -23,7 +23,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 version = "${mod_version}"
 group = "${mod_id}"
-archivesBaseName = "${mod_name}"
+archivesBaseName = '`' + "${mod_name}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 java.withSourcesJar()

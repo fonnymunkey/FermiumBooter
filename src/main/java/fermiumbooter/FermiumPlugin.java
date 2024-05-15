@@ -3,6 +3,8 @@ package fermiumbooter;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +20,7 @@ public class FermiumPlugin implements IFMLLoadingPlugin {
 
 	public FermiumPlugin() {
 		MixinBootstrap.init();
+		MixinExtrasBootstrap.init();
 		Mixins.addConfiguration("mixins.fermiumbooter.init.json");
 	}
 

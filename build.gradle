@@ -6,13 +6,18 @@ buildscript {
         maven {
             url = 'https://repo.spongepowered.org/maven'
         }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.+'
+        classpath("gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0")
     }
 }
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
@@ -30,17 +35,13 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-repositories {
-    maven {
-        url = 'https://repo.spongepowered.org/maven'
-    }
-}
-
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation "org.spongepowered:mixin:0.8.5"
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    shadow 'io.github.llamalad7:mixinextras-common:0.3.5'
+
+    shadow 'org.spongepowered:mixin:0.8.5'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 mixin {
@@ -58,6 +59,21 @@ processResources {
     }
 }
 
+shadowJar {
+    configurations = [project.configurations.shadow]
+    mergeServiceFiles()
+
+    exclude 'org/spongepowered/asm/launch/MixinLaunchPlugin*'
+    exclude 'org/spongepowered/asm/launch/MixinTransformationService*'
+    exclude 'org/spongepowered/asm/launch/platform/container/ContainerHandleModLauncherEx*'
+
+    archiveClassifier.set('')
+}
+
+reobf {
+    shadowJar {}
+}
+
 jar {
     manifest {
         attributes([
@@ -72,6 +88,9 @@ jar {
                 "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         ])
     }
+
+    archiveClassifier.set('THIN')
 }
 
+build.dependsOn(shadowJar)
 jar.finalizedBy('reobfJar')

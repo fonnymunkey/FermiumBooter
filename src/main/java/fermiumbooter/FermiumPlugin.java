@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixins;
 
 @IFMLLoadingPlugin.Name("FermiumBooter")
 @IFMLLoadingPlugin.MCVersion("1.12.2")
-@IFMLLoadingPlugin.SortingIndex(Integer.MAX_VALUE-10)//Sorting index? Nah, alphabetical order based on jar name, whatever lol
+@IFMLLoadingPlugin.SortingIndex(990)
 public class FermiumPlugin implements IFMLLoadingPlugin {
 
 	public static final Logger LOGGER = LogManager.getLogger("FermiumBooter");
@@ -44,7 +44,6 @@ public class FermiumPlugin implements IFMLLoadingPlugin {
 
 	/**
 	 * Handle actually parsing and adding the early configurations here, as it gets called after all other plugins are initialized
-	 * SortingIndex is either a sneaky liar, or drunk
 	 */
 	@Override
 	public void injectData(Map<String, Object> data) {

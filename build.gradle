@@ -38,10 +38,10 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    shadow 'io.github.llamalad7:mixinextras-common:0.3.5'
+    shadow 'io.github.llamalad7:mixinextras-common:0.4.1'
 
-    shadow 'org.spongepowered:mixin:0.8.5'
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    shadow 'org.spongepowered:mixin:0.8.7'
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
 }
 
 mixin {

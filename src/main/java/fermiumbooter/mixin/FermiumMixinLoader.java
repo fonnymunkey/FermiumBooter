@@ -5,6 +5,7 @@ import fermiumbooter.FermiumRegistryAPI;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.ModContainer;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.Mixins;
@@ -26,7 +27,7 @@ import java.util.function.Supplier;
  * https://github.com/DimensionalDevelopment/JustEnoughIDs/blob/master/src/main/java/org/dimdev/jeid/mixin/init/JEIDMixinLoader.java
  */
 @Mixin(Loader.class)
-public class FermiumMixinLoader {
+public abstract class FermiumMixinLoader {
 
     @Shadow(remap = false)
     private List<ModContainer> mods;
@@ -54,24 +55,21 @@ public class FermiumMixinLoader {
         for(Map.Entry<String, List<Supplier<Boolean>>> entry : FermiumRegistryAPI.getLateMixins().entrySet()) {
             //Check for removals
             if(FermiumRegistryAPI.getRejectMixins().contains(entry.getKey())) {
-                FermiumPlugin.LOGGER.warn("FermiumBooter received removal of \"" + entry.getKey() + "\" for late mixin application, rejecting.");
+                FermiumPlugin.LOGGER.log(Level.INFO, "FermiumBooter received removal of \"{}\" for late mixin application, rejecting.", entry.getKey());
                 continue;
             }
             //Check for enabled
-            Boolean enabled = null;
+            boolean enabled = false;
             for(Supplier<Boolean> supplier : entry.getValue()) {
-                if(Boolean.TRUE.equals(enabled)) continue;//Short circuit OR
                 Boolean supplied = supplier.get();
-                if(supplied == null) FermiumPlugin.LOGGER.warn("FermiumBooter received null value for individual supplier from \"" + entry.getKey() + "\" for late mixin application.");
-                else enabled = supplied;
-            }
-            if(enabled == null) {
-                FermiumPlugin.LOGGER.warn("FermiumBooter received null value for supplier from \"" + entry.getKey() + "\" for late mixin application, ignoring.");
-                continue;
+                if(supplied == null) {
+                    FermiumPlugin.LOGGER.log(Level.WARN, "FermiumBooter received null value from late application supplier for \"{}\".", entry.getKey());
+                }
+                else enabled |= supplied;
             }
             //Add configuration
             if(enabled) {
-                FermiumPlugin.LOGGER.info("FermiumBooter adding \"" + entry.getKey() + "\" for late mixin application.");
+                FermiumPlugin.LOGGER.log(Level.INFO, "FermiumBooter adding \"{}\" for late mixin application.", entry.getKey());
                 Mixins.addConfiguration(entry.getKey());
             }
         }

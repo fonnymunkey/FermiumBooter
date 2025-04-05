@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
+import fermiumbooter.util.FermiumMixinConfigHandler;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
@@ -47,27 +49,25 @@ public class FermiumPlugin implements IFMLLoadingPlugin {
 	 */
 	@Override
 	public void injectData(Map<String, Object> data) {
+		FermiumMixinConfigHandler.clearConfigCache();
 		for(Map.Entry<String, List<Supplier<Boolean>>> entry : FermiumRegistryAPI.getEarlyMixins().entrySet()) {
 			//Check for removals
 			if(FermiumRegistryAPI.getRejectMixins().contains(entry.getKey())) {
-				LOGGER.warn("FermiumBooter received removal of \"" + entry.getKey() + "\" for early mixin application, rejecting.");
+				LOGGER.log(Level.INFO, "FermiumBooter received removal of \"{}\" for early mixin application, rejecting.", entry.getKey());
 				continue;
 			}
 			//Check for enabled
-			Boolean enabled = null;
+			boolean enabled = false;
 			for(Supplier<Boolean> supplier : entry.getValue()) {
-				if(Boolean.TRUE.equals(enabled)) continue;//Short circuit OR
 				Boolean supplied = supplier.get();
-				if(supplied == null) LOGGER.warn("FermiumBooter received null value for individual supplier from \"" + entry.getKey() + "\" for early mixin application.");
-				else enabled = supplied;
-			}
-			if(enabled == null) {
-				LOGGER.warn("FermiumBooter received null value for suppliers from \"" + entry.getKey() + "\" for early mixin application, ignoring.");
-				continue;
+				if(supplied == null) {
+					LOGGER.log(Level.WARN, "FermiumBooter received null value from early application supplier for \"{}\".", entry.getKey());
+				}
+				else enabled |= supplied;
 			}
 			//Add configuration
 			if(enabled) {
-				LOGGER.info("FermiumBooter adding \"" + entry.getKey() + "\" for early mixin application.");
+				LOGGER.log(Level.INFO, "FermiumBooter adding \"{}\" for early mixin application.", entry.getKey());
 				Mixins.addConfiguration(entry.getKey());
 			}
 		}

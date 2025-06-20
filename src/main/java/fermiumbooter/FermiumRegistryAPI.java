@@ -1,12 +1,10 @@
 package fermiumbooter;
 
-import fermiumbooter.util.FermiumEarlyModIDSearcher;
-import fermiumbooter.util.FermiumMixinConfigHandler;
+import fermiumbooter.util.FermiumJarScanner;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +14,7 @@ import java.util.function.Supplier;
  * Enqueue mixins to be applied or rejected from your IFMLLoadingPlugin class init
  * Includes options for disabling the mixin from a Supplier, and loading it either early or late
  * Configuration name is the name of the json pointing to your mixin, such as "mixins.fermiumbooter.init.json"
- * For additional Forge config based mixin toggle handling:
+ * For additional Forge @Config based mixin handling:
  * @see fermiumbooter.annotations.MixinConfig
  */
 public abstract class FermiumRegistryAPI {
@@ -114,19 +112,7 @@ public abstract class FermiumRegistryAPI {
      * @return true if the provided modID is detected as present
      */
     public static boolean isModPresent(String modID) {
-        return FermiumEarlyModIDSearcher.isModPresent(modID);
-    }
-    
-    /**
-     * Registers a Forge Config containing config options/nested configs annotated using MixinConfig annotations
-     * FermiumBooter will handle reading the config and mixin toggles/compat handling to determine enqueueing mixins
-     * Register annotated configs from your IFMLLoadingPlugin class init
-     * @see fermiumbooter.annotations.MixinConfig
-     * @param parentConfigClass the Forge Config class containing EarlyMixin/LateMixin options or SubInstance configs
-     * @param parentConfigClassInstance the instance of the provided class, or null if handled statically
-     */
-    public static <T> void registerAnnotatedMixinConfig(Class<T> parentConfigClass, @Nullable T parentConfigClassInstance) {
-        FermiumMixinConfigHandler.registerForgeConfigClass(parentConfigClass, parentConfigClassInstance);
+        return FermiumJarScanner.isModPresent(modID);
     }
 
     /**

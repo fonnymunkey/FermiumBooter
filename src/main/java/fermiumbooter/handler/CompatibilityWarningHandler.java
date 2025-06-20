@@ -1,7 +1,7 @@
 package fermiumbooter.handler;
 
 import fermiumbooter.config.FermiumBooterConfig;
-import fermiumbooter.util.FermiumMixinConfigHandler;
+import fermiumbooter.util.FermiumJarScanner;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -18,7 +18,7 @@ public abstract class CompatibilityWarningHandler {
 		if(FermiumBooterConfig.suppressMixinCompatibilityWarningsRender) return;
 		if(event.phase != TickEvent.Phase.END) return;
 		
-		int warningCount = FermiumMixinConfigHandler.getWarningCount();
+		int warningCount = FermiumJarScanner.getWarningCount();
 		if(warningCount <= 0) return;
 		
 		if(warningMessage == null) warningMessage = String.format("FermiumBooter found %d possible mixin compat errors, check your log", warningCount);

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
-import fermiumbooter.util.FermiumMixinConfigHandler;
+import fermiumbooter.util.FermiumJarScanner;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +49,11 @@ public class FermiumPlugin implements IFMLLoadingPlugin {
 	 */
 	@Override
 	public void injectData(Map<String, Object> data) {
-		FermiumMixinConfigHandler.clearConfigCache();
+		//Handle caching now if it hasn't already
+		FermiumJarScanner.handleCaching();
+		//Clear larger cached jar scanner fields cause why not
+		FermiumJarScanner.clearCaches();
+		
 		for(Map.Entry<String, List<Supplier<Boolean>>> entry : FermiumRegistryAPI.getEarlyMixins().entrySet()) {
 			//Check for removals
 			if(FermiumRegistryAPI.getRejectMixins().contains(entry.getKey())) {
